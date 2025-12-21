@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>first_wasm</title>
+</head>
+<body>
+  <h1>fib calculator</h1>
+  <div>
+    <input id="input">
+    <button id="button">calc fib</button>
+    <p>has not called</p>
+  </div>
+</body>
+<script defer>
+  let wasmInstance;
+
+  // wasm をロード
+  async function loadWasm() {
+    const response = await fetch("./target/wasm/release/build/moonbit_wasm.wasm");
+    const bytes = await response.arrayBuffer();
+
+    const { instance } = await WebAssembly.instantiate(bytes, {});
+    wasmInstance = instance;
+  }
+
+  // 初期ロード
+  loadWasm();
+
+  // ボタン押下時の処理
+  const button = document.getElementById("button");
+  const input = document.getElementById("input");
+  
+  button.addEventListener("click", () => {
+    if (!wasmInstance) {
+      alert("wasm not loaded yet");
+      return;
+    }
+    const raw = input.value.trim();
+    const n = parseInt(raw, 10);
+
+    if (
+      Number.isNaN(n) ||
+      n < 1 ||
+      n > 91 ||
+      n.toString() !== raw
+    ) {
+      alert("91以下の自然数を入力してください");
+      return;
+    }
+
+    // wasm の関数を呼ぶ（例: add）
+    const result = wasmInstance.exports.fib(n);
+
+    // <p> を書き換える
+    const p = document.querySelector("p");
+    p.textContent = `result: ${result}`;
+  });
+</script>
+</html>

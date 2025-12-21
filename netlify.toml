@@ -1,0 +1,3 @@
+[build]
+  command = "curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash && export PATH=\"$HOME/.moon/bin:$PATH\" && moon build --target wasm --release"
+  publish = "."
